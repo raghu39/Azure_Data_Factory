@@ -1,0 +1,52 @@
+{
+	"name": "df_casesdeath_Europe",
+	"properties": {
+		"description": "Data flow which gets data from cases_deaths file and filter the data to Europe data , also transform couple of columns which are used for developing reporting.",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_raw_casesdeath_source",
+						"type": "DatasetReference"
+					},
+					"name": "CasesandDeathSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_countrycode_lookup",
+						"type": "DatasetReference"
+					},
+					"name": "CountryLookup"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_Cases_Death_Processed",
+						"type": "DatasetReference"
+					},
+					"name": "CasesandDeathSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FilterEuropeData"
+				},
+				{
+					"name": "SelectOnlyRequiredFileds"
+				},
+				{
+					"name": "PivotCounts"
+				},
+				{
+					"name": "LookupCountry"
+				},
+				{
+					"name": "SelectForSink"
+				}
+			],
+			"script": "source(output(\n\t\tcountry as string,\n\t\tcountry_code as string,\n\t\tcontinent as string,\n\t\tpopulation as integer,\n\t\tindicator as string,\n\t\tdaily_count as integer,\n\t\tdate as string,\n\t\trate_14_day as double,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> CasesandDeathSource\nsource(output(\n\t\tcountry as string,\n\t\tcountry_code_2_digit as string,\n\t\tcountry_code_3_digit as string,\n\t\tcontinent as string,\n\t\tpopulation as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> CountryLookup\nCasesandDeathSource filter(continent=='Europe' && not(isNull(country_code))) ~> FilterEuropeData\nFilterEuropeData select(mapColumn(\n\t\tcountry,\n\t\tcountry_code,\n\t\tpopulation,\n\t\tindicator,\n\t\tdaily_count,\n\t\tsource,\n\t\teach(match(name=='date'),\n\t\t\t'reported_'+'date' = $$)\n\t),\n\tskipDuplicateMapInputs: false,\n\tskipDuplicateMapOutputs: false) ~> SelectOnlyRequiredFileds\nSelectOnlyRequiredFileds pivot(groupBy(country,\n\t\tcountry_code,\n\t\tpopulation,\n\t\tsource,\n\t\treported_date),\n\tpivotBy(indicator, ['confirmed cases', 'deaths']),\n\tCount = sum(daily_count),\n\tcolumnNaming: '$V_$N',\n\tlateral: true) ~> PivotCounts\nPivotCounts, CountryLookup lookup(PivotCounts@country == CountryLookup@country,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> LookupCountry\nLookupCountry select(mapColumn(\n\t\tCountry = PivotCounts@country,\n\t\tCountry_code_2_digit = country_code_2_digit,\n\t\tCountry_code_3_digit = country_code_3_digit,\n\t\tPopulation = PivotCounts@population,\n\t\tCases_Count = {confirmed cases_Count},\n\t\tDeaths_Count = deaths_Count,\n\t\tReported_date = reported_date,\n\t\tSource = source\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectForSink\nSelectForSink sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['Cases_deaths_processed.csv'],\n\ttruncate: true,\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> CasesandDeathSink"
+		}
+	}
+}

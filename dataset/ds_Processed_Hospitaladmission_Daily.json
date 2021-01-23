@@ -1,0 +1,60 @@
+{
+	"name": "ds_Processed_Hospitaladmission_Daily",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Is_adls_covid_reportingdatalake",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Processed"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "ecdc/hospital_admissions_daily",
+				"fileSystem": "processed"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Country",
+				"type": "String"
+			},
+			{
+				"name": "Country_code_2_digit",
+				"type": "String"
+			},
+			{
+				"name": "Country_code_3_digit",
+				"type": "String"
+			},
+			{
+				"name": "Population",
+				"type": "String"
+			},
+			{
+				"name": "Cases_Count",
+				"type": "String"
+			},
+			{
+				"name": "Deaths_Count",
+				"type": "String"
+			},
+			{
+				"name": "Reported_date",
+				"type": "String"
+			},
+			{
+				"name": "Source",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

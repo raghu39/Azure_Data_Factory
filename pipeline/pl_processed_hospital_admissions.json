@@ -1,0 +1,38 @@
+{
+	"name": "pl_processed_hospital_admissions",
+	"properties": {
+		"activities": [
+			{
+				"name": "df_hospital_admission_data",
+				"description": "Which loads data from Hospital _data csv file. Data flow which includes transformations to modify the data and extra fields to data. loads data separately into weekly and daily files.",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_hospital_admission_data",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"folder": {
+			"name": "Processed"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-01-23T07:47:45Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

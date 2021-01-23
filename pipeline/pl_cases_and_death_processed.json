@@ -1,0 +1,38 @@
+{
+	"name": "pl_cases_and_death_processed",
+	"properties": {
+		"activities": [
+			{
+				"name": "df_cases and_death_Europe data",
+				"description": "This pipeline will execute the data flow which is created to sort the europe data and load those records into separate file in data lake gen 2 (new file)",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_casesdeath_Europe",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"folder": {
+			"name": "Processed"
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-01-23T07:47:45Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
