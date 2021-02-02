@@ -1,0 +1,27 @@
+{
+	"name": "ds_Aggregate_Address_cnt",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_aggregate_cnt",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "AddressCount",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "City",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Address_count"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

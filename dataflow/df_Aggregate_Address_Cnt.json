@@ -1,0 +1,32 @@
+{
+	"name": "df_Aggregate_Address_Cnt",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_Aggregate_Address_Source",
+						"type": "DatasetReference"
+					},
+					"name": "RetriveAddressCntFromAddressTable"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_Aggregate_Address_cnt",
+						"type": "DatasetReference"
+					},
+					"name": "LoadCntAddressIntoCntTable"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AggregateCntsFromAddressTable"
+				}
+			],
+			"script": "source(output(\n\t\tAddressID as integer,\n\t\tAddressLine1 as string,\n\t\tAddressLine2 as string,\n\t\tCity as string,\n\t\tStateProvinceID as integer,\n\t\tPostalCode as string,\n\t\tSpatialLocation as binary,\n\t\trowguid as string,\n\t\tModifiedDate as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> RetriveAddressCntFromAddressTable\nRetriveAddressCntFromAddressTable aggregate(groupBy(City),\n\tcnt = toInteger(count(AddressID))) ~> AggregateCntsFromAddressTable\nAggregateCntsFromAddressTable sink(input(\n\t\tAddressCount as integer,\n\t\tCity as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> LoadCntAddressIntoCntTable"
+		}
+	}
+}
